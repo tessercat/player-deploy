@@ -1,0 +1,52 @@
+---
+- name: Packages
+  ansible.builtin.apt:
+      pkg:
+          - php-fpm
+
+- name: Deployment directory
+  ansible.builtin.file:
+      path: /opt/index
+      state: directory
+      owner: root
+      group: root
+      mode: "0755"
+
+- name: Web directory
+  ansible.builtin.file:
+      path: /opt/index/web
+      state: directory
+      owner: www-data
+      group: www-data
+      mode: "0700"
+
+- name: Media directory
+  ansible.builtin.file:
+      path: /opt/index/media
+      state: directory
+      owner: www-data
+      group: www-data
+      mode: "0700"
+
+- name: Web
+  become: true
+  become_user: www-data
+  ansible.builtin.git:
+      repo: "{{ index_web_repo }}"
+      dest: /opt/index/web
+      version: "{{ index_web_version }}"
+      force: true
+
+- name: Nginx index
+  notify:
+      - restart index nginx service
+  ansible.builtin.template:
+      src: nginx.conf
+      dest: /etc/nginx/conf.d/{{ hostname }}.conf
+      mode: "0644"
+
+
+# Handlers.
+
+- name: Handlers
+  ansible.builtin.meta: flush_handlers

@@ -1,0 +1,11 @@
+---
+- name: Deploy index
+  hosts: 127.0.0.1
+  connection: local
+  become: false
+  gather_facts: false
+  vars:
+      index_web_repo: https://github.com/tessercat/index-web.git
+      index_web_version: dev
+  roles:
+      - {role: web, tags: [web]}
